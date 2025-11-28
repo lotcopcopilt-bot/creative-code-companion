@@ -14,7 +14,179 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          amount: number
+          buyer_email: string
+          created_at: string
+          download_expires_at: string | null
+          download_token: string | null
+          downloaded_at: string | null
+          id: string
+          payment_status: string
+          product_id: string
+          transaction_id: string | null
+        }
+        Insert: {
+          amount: number
+          buyer_email: string
+          created_at?: string
+          download_expires_at?: string | null
+          download_token?: string | null
+          downloaded_at?: string | null
+          id?: string
+          payment_status?: string
+          product_id: string
+          transaction_id?: string | null
+        }
+        Update: {
+          amount?: number
+          buyer_email?: string
+          created_at?: string
+          download_expires_at?: string | null
+          download_token?: string | null
+          downloaded_at?: string | null
+          id?: string
+          payment_status?: string
+          product_id?: string
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          description: string | null
+          file_url: string
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          price: number
+          rating: number | null
+          sales_count: number | null
+          seller_id: string
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          file_url: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          price: number
+          rating?: number | null
+          sales_count?: number | null
+          seller_id: string
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          file_url?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          price?: number
+          rating?: number | null
+          sales_count?: number | null
+          seller_id?: string
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sellers: {
+        Row: {
+          banner_url: string | null
+          boutique_name: string
+          boutique_slug: string
+          created_at: string
+          description: string | null
+          id: string
+          logo_url: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          banner_url?: string | null
+          boutique_name: string
+          boutique_slug: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          banner_url?: string | null
+          boutique_name?: string
+          boutique_slug?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
