@@ -4,10 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, Check, Zap, Shield, TrendingUp, Users } from "lucide-react";
 import { Link } from "react-router-dom";
-
 const Landing = () => {
-  return (
-    <div className="min-h-screen flex flex-col">
+  return <div className="min-h-screen flex flex-col">
       <Header />
       
       {/* Hero Section */}
@@ -32,8 +30,8 @@ const Landing = () => {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Link to="/marketplace">
-                <Button size="lg" variant="outline" className="text-lg px-8 border-white/20 text-white hover:bg-white/10">
-                  Explorer la marketplace
+                <Button size="lg" variant="outline" className="text-lg px-8 border-white/20 text-primary-foreground bg-secondary">
+                  ​Visiter notre boutique 🛍️                           
                 </Button>
               </Link>
             </div>
@@ -149,8 +147,6 @@ const Landing = () => {
       </section>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Landing;
