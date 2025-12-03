@@ -76,7 +76,7 @@ export const Header = () => {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link to="/create-boutique">Ma boutique</Link>
+                  <Link to="/dashboard">Mon dashboard</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive">
@@ -94,9 +94,9 @@ export const Header = () => {
           )}
           
           {user ? (
-            <Link to="/create-boutique">
+            <Link to="/dashboard">
               <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
-                Ma boutique
+                Dashboard
               </Button>
             </Link>
           ) : (
