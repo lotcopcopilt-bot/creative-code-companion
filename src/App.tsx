@@ -8,6 +8,8 @@ import Marketplace from "./pages/Marketplace";
 import Product from "./pages/Product";
 import Checkout from "./pages/Checkout";
 import Success from "./pages/Success";
+import Auth from "./pages/Auth";
+import CreateBoutique from "./pages/CreateBoutique";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +26,8 @@ const App = () => (
           <Route path="/product/:slug" element={<Product />} />
           <Route path="/checkout/:productId" element={<Checkout />} />
           <Route path="/success" element={<Success />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/create-boutique" element={<CreateBoutique />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
