@@ -25,10 +25,12 @@ const Landing = () => {
               Vendez tout ce que vous créez, sans commission sur les petites ventes.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8">
-                Commencer gratuitement
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+              <Link to="/auth">
+                <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8">
+                  Commencer gratuitement
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
               <Link to="/marketplace">
                 <Button size="lg" variant="outline" className="text-lg px-8 border-white/20 text-primary-foreground bg-secondary">
                   ​Visiter notre boutique 🛍️                           
@@ -138,10 +140,12 @@ const Landing = () => {
               Lancez votre boutique aujourd'hui et commencez à monétiser votre contenu 
               auprès de votre communauté.
             </p>
-            <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8">
-              Créer ma boutique gratuitement
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
+            <Link to="/create-boutique">
+              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8">
+                Créer ma boutique gratuitement
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
