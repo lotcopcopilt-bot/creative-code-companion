@@ -14,8 +14,10 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [showResetPassword, setShowResetPassword] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -36,7 +38,14 @@ const Auth = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        if (session?.user) {
+        // Détecter l'événement de récupération de mot de passe
+        if (event === "PASSWORD_RECOVERY") {
+          setShowResetPassword(true);
+          setShowForgotPassword(false);
+          return;
+        }
+
+        if (session?.user && !showResetPassword) {
           setTimeout(() => {
             checkUserAndRedirect(session.user.id);
           }, 0);
@@ -45,13 +54,13 @@ const Auth = () => {
     );
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
+      if (session?.user && !showResetPassword) {
         checkUserAndRedirect(session.user.id);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, showResetPassword]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -176,6 +185,60 @@ const Auth = () => {
     }
   };
 
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (password !== confirmPassword) {
+      toast({
+        title: "Erreur",
+        description: "Les mots de passe ne correspondent pas.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (password.length < 6) {
+      toast({
+        title: "Erreur",
+        description: "Le mot de passe doit contenir au moins 6 caractères.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: password,
+      });
+
+      if (error) {
+        toast({
+          title: "Erreur",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Mot de passe mis à jour",
+          description: "Votre mot de passe a été réinitialisé avec succès !",
+        });
+        setShowResetPassword(false);
+        setPassword("");
+        setConfirmPassword("");
+      }
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-dark">
       <div className="p-4">
@@ -189,7 +252,62 @@ const Auth = () => {
       
       <main className="flex-1 flex items-center justify-center py-12 px-4">
         <Card className="w-full max-w-md border-border/50 bg-card/80 backdrop-blur">
-          {showForgotPassword ? (
+          {showResetPassword ? (
+            <>
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl font-bold">Nouveau mot de passe</CardTitle>
+                <CardDescription>
+                  Entrez votre nouveau mot de passe
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleResetPassword} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="new-password">Nouveau mot de passe</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="new-password"
+                        type="password"
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="pl-10"
+                        required
+                        minLength={6}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-password">Confirmer le mot de passe</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="confirm-password"
+                        type="password"
+                        placeholder="••••••••"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="pl-10"
+                        required
+                        minLength={6}
+                      />
+                    </div>
+                  </div>
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Mise à jour...
+                      </>
+                    ) : (
+                      "Réinitialiser le mot de passe"
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </>
+          ) : showForgotPassword ? (
             <>
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl font-bold">Mot de passe oublié</CardTitle>
