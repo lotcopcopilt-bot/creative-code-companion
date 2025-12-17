@@ -1,13 +1,18 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
-import { Store, Package, ShoppingCart, Plus, Loader2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Store, Package, ShoppingCart, Plus, Loader2, LogOut, Settings, LayoutDashboard } from "lucide-react";
+import logo from "@/assets/logo.png";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface SellerData {
   id: string;
@@ -54,6 +59,8 @@ const Dashboard = () => {
 
       if (!error && data) {
         setSeller(data);
+      } else {
+        navigate("/create-boutique");
       }
       setIsLoading(false);
     };
@@ -61,26 +68,81 @@ const Dashboard = () => {
     if (user) {
       fetchSellerData();
     }
-  }, [user]);
+  }, [user, navigate]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth");
+  };
 
   if (!user || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-dark">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   if (!seller) {
-    navigate("/create-boutique");
     return null;
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
+    <div className="min-h-screen bg-gradient-dark">
+      {/* Dashboard Header */}
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-gradient-dark/95 backdrop-blur">
+        <div className="container flex h-16 items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link to="/dashboard" className="flex items-center gap-2 transition-transform hover:scale-105">
+              <img src={logo} alt="E-combox" className="h-10 w-10" />
+              <span className="text-2xl font-bold bg-gradient-brand bg-clip-text text-transparent">
+                E-combox
+              </span>
+            </Link>
+            <span className="hidden md:block text-muted-foreground">|</span>
+            <span className="hidden md:flex items-center gap-2 text-sm text-muted-foreground">
+              <LayoutDashboard className="h-4 w-4" />
+              Dashboard
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-2 text-foreground hover:bg-muted/50">
+                  {seller.logo_url ? (
+                    <img 
+                      src={seller.logo_url} 
+                      alt={seller.boutique_name}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <Store className="h-5 w-5" />
+                  )}
+                  <span className="hidden md:block">{seller.boutique_name}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem className="text-sm text-muted-foreground">
+                  {user.email}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <Settings className="mr-2 h-4 w-4" />
+                  Paramètres
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Déconnexion
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </header>
       
-      <main className="flex-1 py-12 px-4">
+      <main className="py-8 px-4">
         <div className="container max-w-6xl">
           <div className="flex items-center gap-4 mb-8">
             {seller.logo_url && (
@@ -91,13 +153,13 @@ const Dashboard = () => {
               />
             )}
             <div>
-              <h1 className="text-3xl font-bold">Bienvenue, {seller.boutique_name}</h1>
+              <h1 className="text-3xl font-bold text-foreground">Bienvenue, {seller.boutique_name}</h1>
               <p className="text-muted-foreground">Gérez votre boutique et vos produits</p>
             </div>
           </div>
 
           <div className="grid gap-6 md:grid-cols-3 mb-8">
-            <Card>
+            <Card className="bg-card/50 border-border/50">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">Ma Boutique</CardTitle>
                 <Store className="h-4 w-4 text-muted-foreground" />
@@ -108,7 +170,7 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-card/50 border-border/50">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">Produits</CardTitle>
                 <Package className="h-4 w-4 text-muted-foreground" />
@@ -119,7 +181,7 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-card/50 border-border/50">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">Ventes</CardTitle>
                 <ShoppingCart className="h-4 w-4 text-muted-foreground" />
@@ -131,30 +193,24 @@ const Dashboard = () => {
             </Card>
           </div>
 
-          <Card>
+          <Card className="bg-card/50 border-border/50">
             <CardHeader>
               <CardTitle>Actions rapides</CardTitle>
               <CardDescription>Gérez votre boutique facilement</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-4">
-              <Button asChild>
-                <Link to="/add-product">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Ajouter un produit
-                </Link>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Ajouter un produit
               </Button>
-              <Button variant="outline" asChild>
-                <Link to="/marketplace">
-                  <Store className="mr-2 h-4 w-4" />
-                  Voir la marketplace
-                </Link>
+              <Button variant="outline">
+                <Store className="mr-2 h-4 w-4" />
+                Voir ma boutique
               </Button>
             </CardContent>
           </Card>
         </div>
       </main>
-      
-      <Footer />
     </div>
   );
 };
