@@ -189,7 +189,35 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      seller_orders: {
+        Row: {
+          amount: number | null
+          created_at: string | null
+          id: string | null
+          masked_buyer_email: string | null
+          payment_status: string | null
+          product_id: string | null
+          product_title: string | null
+          seller_id: string | null
+          transaction_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       increment_sales_count: {
