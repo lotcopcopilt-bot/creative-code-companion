@@ -1,1 +1,10 @@
 project_id = "hpifmzuwlgmekbgtsqip"
+
+[functions.verify-payment]
+verify_jwt = false
+
+[functions.get-kkiapay-key]
+verify_jwt = false
+
+[functions.download-product]
+verify_jwt = false
