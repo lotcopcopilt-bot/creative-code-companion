@@ -199,7 +199,6 @@ export type Database = {
           product_id: string | null
           product_title: string | null
           seller_id: string | null
-          transaction_id: string | null
         }
         Relationships: [
           {

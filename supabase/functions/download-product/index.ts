@@ -94,10 +94,46 @@ serve(async (req) => {
 
     console.log("Download validated for product:", product.title);
 
-    // Return the file URL (for now using direct URL, later can use signed URLs with storage)
+    // Check if file is in Storage (product-files bucket) or external URL
+    let downloadUrl = product.file_url;
+    
+    // If file_url is a Storage path (starts with product-files/ or contains storage path pattern)
+    if (product.file_url && !product.file_url.startsWith('http')) {
+      // Generate signed URL for Storage file (expires in 5 minutes)
+      const { data: signedData, error: signedError } = await supabase
+        .storage
+        .from('product-files')
+        .createSignedUrl(product.file_url, 300); // 5 minutes expiry
+
+      if (signedError) {
+        console.error("Error creating signed URL:", signedError);
+        return new Response(
+          JSON.stringify({ error: 'Erreur lors de la génération du lien de téléchargement' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      downloadUrl = signedData.signedUrl;
+    } else if (product.file_url && product.file_url.includes('/storage/v1/object/')) {
+      // Extract path from Storage URL and create signed URL
+      const pathMatch = product.file_url.match(/\/storage\/v1\/object\/(?:public|sign)\/product-files\/(.+)/);
+      if (pathMatch) {
+        const filePath = pathMatch[1];
+        const { data: signedData, error: signedError } = await supabase
+          .storage
+          .from('product-files')
+          .createSignedUrl(filePath, 300);
+
+        if (!signedError && signedData) {
+          downloadUrl = signedData.signedUrl;
+        }
+      }
+    }
+
+    // Return the signed URL
     return new Response(
       JSON.stringify({ 
-        downloadUrl: product.file_url,
+        downloadUrl: downloadUrl,
         productTitle: product.title
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
