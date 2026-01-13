@@ -60,15 +60,16 @@ const Dashboard = () => {
       if (!error && data) {
         setSeller(data);
       } else {
-        navigate("/create-boutique");
+        setSeller(null);
       }
+
       setIsLoading(false);
     };
 
     if (user) {
       fetchSellerData();
     }
-  }, [user, navigate]);
+  }, [user]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -81,10 +82,6 @@ const Dashboard = () => {
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
-  }
-
-  if (!seller) {
-    return null;
   }
 
   return (
@@ -110,16 +107,19 @@ const Dashboard = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-2 text-foreground hover:bg-muted/50">
-                  {seller.logo_url ? (
-                    <img 
-                      src={seller.logo_url} 
+                  {seller?.logo_url ? (
+                    <img
+                      src={seller.logo_url}
                       alt={seller.boutique_name}
                       className="w-8 h-8 rounded-full object-cover"
+                      loading="lazy"
                     />
-                  ) : (
+                  ) : seller ? (
                     <Store className="h-5 w-5" />
+                  ) : (
+                    <LayoutDashboard className="h-5 w-5" />
                   )}
-                  <span className="hidden md:block">{seller.boutique_name}</span>
+                  <span className="hidden md:block">{seller?.boutique_name ?? "Mon espace"}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -141,74 +141,98 @@ const Dashboard = () => {
           </div>
         </div>
       </header>
-      
+
       <main className="py-8 px-4">
         <div className="container max-w-6xl">
-          <div className="flex items-center gap-4 mb-8">
-            {seller.logo_url && (
-              <img 
-                src={seller.logo_url} 
-                alt={seller.boutique_name}
-                className="w-16 h-16 rounded-full object-cover border-2 border-primary"
-              />
-            )}
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Bienvenue, {seller.boutique_name}</h1>
-              <p className="text-muted-foreground">Gérez votre boutique et vos produits</p>
-            </div>
-          </div>
+          {seller ? (
+            <>
+              <div className="flex items-center gap-4 mb-8">
+                {seller.logo_url && (
+                  <img
+                    src={seller.logo_url}
+                    alt={seller.boutique_name}
+                    className="w-16 h-16 rounded-full object-cover border-2 border-primary"
+                    loading="lazy"
+                  />
+                )}
+                <div>
+                  <h1 className="text-3xl font-bold text-foreground">Bienvenue, {seller.boutique_name}</h1>
+                  <p className="text-muted-foreground">Gérez votre boutique et vos produits</p>
+                </div>
+              </div>
 
-          <div className="grid gap-6 md:grid-cols-3 mb-8">
-            <Card className="bg-card/50 border-border/50">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Ma Boutique</CardTitle>
-                <Store className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{seller.boutique_name}</div>
-                <p className="text-xs text-muted-foreground">Boutique active</p>
-              </CardContent>
-            </Card>
+              <div className="grid gap-6 md:grid-cols-3 mb-8">
+                <Card className="bg-card/50 border-border/50">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-sm font-medium">Ma Boutique</CardTitle>
+                    <Store className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{seller.boutique_name}</div>
+                    <p className="text-xs text-muted-foreground">Boutique active</p>
+                  </CardContent>
+                </Card>
 
-            <Card className="bg-card/50 border-border/50">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Produits</CardTitle>
-                <Package className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">0</div>
-                <p className="text-xs text-muted-foreground">Produits publiés</p>
-              </CardContent>
-            </Card>
+                <Card className="bg-card/50 border-border/50">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-sm font-medium">Produits</CardTitle>
+                    <Package className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">0</div>
+                    <p className="text-xs text-muted-foreground">Produits publiés</p>
+                  </CardContent>
+                </Card>
 
-            <Card className="bg-card/50 border-border/50">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Ventes</CardTitle>
-                <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">0</div>
-                <p className="text-xs text-muted-foreground">Ventes totales</p>
-              </CardContent>
-            </Card>
-          </div>
+                <Card className="bg-card/50 border-border/50">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-sm font-medium">Ventes</CardTitle>
+                    <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">0</div>
+                    <p className="text-xs text-muted-foreground">Ventes totales</p>
+                  </CardContent>
+                </Card>
+              </div>
 
-          <Card className="bg-card/50 border-border/50">
-            <CardHeader>
-              <CardTitle>Actions rapides</CardTitle>
-              <CardDescription>Gérez votre boutique facilement</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-wrap gap-4">
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Ajouter un produit
-              </Button>
-              <Button variant="outline">
-                <Store className="mr-2 h-4 w-4" />
-                Voir ma boutique
-              </Button>
-            </CardContent>
-          </Card>
+              <Card className="bg-card/50 border-border/50">
+                <CardHeader>
+                  <CardTitle>Actions rapides</CardTitle>
+                  <CardDescription>Gérez votre boutique facilement</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-wrap gap-4">
+                  <Button>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Ajouter un produit
+                  </Button>
+                  <Button variant="outline">
+                    <Store className="mr-2 h-4 w-4" />
+                    Voir ma boutique
+                  </Button>
+                </CardContent>
+              </Card>
+            </>
+          ) : (
+            <section className="max-w-2xl">
+              <h1 className="text-3xl font-bold text-foreground">Votre dashboard</h1>
+              <p className="text-muted-foreground mt-2">
+                Vous êtes connecté. Créez votre boutique pour accéder aux outils vendeur.
+              </p>
+
+              <Card className="bg-card/50 border-border/50 mt-6">
+                <CardHeader>
+                  <CardTitle>Créer votre boutique</CardTitle>
+                  <CardDescription>Configurez votre espace vendeur en quelques secondes.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button asChild>
+                    <Link to="/create-boutique">Créer ma boutique</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </section>
+          )}
         </div>
       </main>
     </div>
