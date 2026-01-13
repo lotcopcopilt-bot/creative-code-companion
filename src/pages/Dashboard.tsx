@@ -1,22 +1,22 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
-import { Store, Package, ShoppingCart, Plus, Loader2, LogOut, Settings, LayoutDashboard } from "lucide-react";
-import logo from "@/assets/logo.png";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Loader2, ShoppingCart, DollarSign, Users, Package, TrendingUp, Clock, Eye, Globe } from "lucide-react";
+
+import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import DateRangeFilter, { DateRangePreset, getDateRangeFromPreset } from "@/components/dashboard/DateRangeFilter";
+import KPICard from "@/components/dashboard/KPICard";
+import SalesChart from "@/components/dashboard/SalesChart";
+import TopProductsChart from "@/components/dashboard/TopProductsChart";
+import CreateBoutiqueCTA from "@/components/dashboard/CreateBoutiqueCTA";
+import useDashboardStats from "@/hooks/useDashboardStats";
 
 interface SellerData {
   id: string;
   boutique_name: string;
+  boutique_slug: string;
   description: string | null;
   logo_url: string | null;
 }
@@ -26,6 +26,16 @@ const Dashboard = () => {
   const [seller, setSeller] = useState<SellerData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+
+  // Date range state
+  const [selectedPreset, setSelectedPreset] = useState<DateRangePreset>("30days");
+  const [dateRange, setDateRange] = useState(getDateRangeFromPreset("30days"));
+
+  // Dashboard stats
+  const { stats, isLoading: statsLoading } = useDashboardStats({
+    sellerId: seller?.id || null,
+    dateRange,
+  });
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -53,7 +63,7 @@ const Dashboard = () => {
 
       const { data, error } = await supabase
         .from("sellers")
-        .select("id, boutique_name, description, logo_url")
+        .select("id, boutique_name, boutique_slug, description, logo_url")
         .eq("user_id", user.id)
         .single();
 
@@ -78,163 +88,124 @@ const Dashboard = () => {
 
   if (!user || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-dark">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-dark">
-      {/* Dashboard Header */}
-      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-gradient-dark/95 backdrop-blur">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link to="/dashboard" className="flex items-center gap-2 transition-transform hover:scale-105">
-              <img src={logo} alt="E-combox" className="h-10 w-10" />
-              <span className="text-2xl font-bold bg-gradient-brand bg-clip-text text-transparent">
-                E-combox
-              </span>
-            </Link>
-            <span className="hidden md:block text-muted-foreground">|</span>
-            <span className="hidden md:flex items-center gap-2 text-sm text-muted-foreground">
-              <LayoutDashboard className="h-4 w-4" />
-              Dashboard
-            </span>
-          </div>
+    <div className="min-h-screen bg-background flex">
+      {/* Sidebar - Desktop */}
+      <DashboardSidebar
+        boutiqueName={seller?.boutique_name}
+        logoUrl={seller?.logo_url}
+      />
 
-          <div className="flex items-center gap-3">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center gap-2 text-foreground hover:bg-muted/50">
-                  {seller?.logo_url ? (
-                    <img
-                      src={seller.logo_url}
-                      alt={seller.boutique_name}
-                      className="w-8 h-8 rounded-full object-cover"
-                      loading="lazy"
-                    />
-                  ) : seller ? (
-                    <Store className="h-5 w-5" />
-                  ) : (
-                    <LayoutDashboard className="h-5 w-5" />
-                  )}
-                  <span className="hidden md:block">{seller?.boutique_name ?? "Mon espace"}</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem className="text-sm text-muted-foreground">
-                  {user.email}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Settings className="mr-2 h-4 w-4" />
-                  Paramètres
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="text-destructive">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Déconnexion
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </header>
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-h-screen">
+        {/* Header */}
+        <DashboardHeader
+          boutiqueName={seller?.boutique_name}
+          boutiqueSlug={seller?.boutique_slug}
+          logoUrl={seller?.logo_url}
+          userEmail={user.email}
+          onLogout={handleLogout}
+        />
 
-      <main className="py-8 px-4">
-        <div className="container max-w-6xl">
-          {seller ? (
-            <>
-              <div className="flex items-center gap-4 mb-8">
-                {seller.logo_url && (
-                  <img
-                    src={seller.logo_url}
-                    alt={seller.boutique_name}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-primary"
-                    loading="lazy"
-                  />
-                )}
+        {/* Content */}
+        {seller ? (
+          <main className="flex-1 p-4 lg:p-6 overflow-y-auto">
+            <div className="max-w-7xl mx-auto space-y-6">
+              {/* Welcome & Filters */}
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
-                  <h1 className="text-3xl font-bold text-foreground">Bienvenue, {seller.boutique_name}</h1>
-                  <p className="text-muted-foreground">Gérez votre boutique et vos produits</p>
+                  <h1 className="text-2xl font-bold text-foreground">
+                    Bonjour, {seller.boutique_name} 👋
+                  </h1>
+                  <p className="text-muted-foreground text-sm">
+                    Voici les performances de votre boutique
+                  </p>
                 </div>
+                <DateRangeFilter
+                  selectedPreset={selectedPreset}
+                  dateRange={dateRange}
+                  onPresetChange={setSelectedPreset}
+                  onDateRangeChange={setDateRange}
+                />
               </div>
 
-              <div className="grid gap-6 md:grid-cols-3 mb-8">
-                <Card className="bg-card/50 border-border/50">
-                  <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-medium">Ma Boutique</CardTitle>
-                    <Store className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{seller.boutique_name}</div>
-                    <p className="text-xs text-muted-foreground">Boutique active</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-card/50 border-border/50">
-                  <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-medium">Produits</CardTitle>
-                    <Package className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">0</div>
-                    <p className="text-xs text-muted-foreground">Produits publiés</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-card/50 border-border/50">
-                  <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-medium">Ventes</CardTitle>
-                    <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">0</div>
-                    <p className="text-xs text-muted-foreground">Ventes totales</p>
-                  </CardContent>
-                </Card>
+              {/* KPI Grid - Row 1 */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <KPICard
+                  icon={<ShoppingCart className="h-5 w-5" />}
+                  label="Nombre de ventes"
+                  value={stats.totalSales}
+                  tooltip="Nombre total de ventes complétées sur la période"
+                />
+                <KPICard
+                  icon={<DollarSign className="h-5 w-5" />}
+                  label="Revenu total"
+                  value={stats.totalRevenue.toLocaleString("fr-FR")}
+                  suffix="FCFA"
+                  tooltip="Revenu total généré sur la période"
+                />
+                <KPICard
+                  icon={<Users className="h-5 w-5" />}
+                  label="Nombre de clients"
+                  value={stats.totalCustomers}
+                  tooltip="Nombre de clients uniques sur la période"
+                />
+                <KPICard
+                  icon={<Package className="h-5 w-5" />}
+                  label="Produits actifs"
+                  value={stats.totalProducts}
+                  tooltip="Nombre de produits actuellement en vente"
+                />
               </div>
 
-              <Card className="bg-card/50 border-border/50">
-                <CardHeader>
-                  <CardTitle>Actions rapides</CardTitle>
-                  <CardDescription>Gérez votre boutique facilement</CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-wrap gap-4">
-                  <Button>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Ajouter un produit
-                  </Button>
-                  <Button variant="outline">
-                    <Store className="mr-2 h-4 w-4" />
-                    Voir ma boutique
-                  </Button>
-                </CardContent>
-              </Card>
-            </>
-          ) : (
-            <section className="max-w-2xl">
-              <h1 className="text-3xl font-bold text-foreground">Votre dashboard</h1>
-              <p className="text-muted-foreground mt-2">
-                Vous êtes connecté. Créez votre boutique pour accéder aux outils vendeur.
-              </p>
+              {/* KPI Grid - Row 2 (placeholder metrics for future) */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <KPICard
+                  icon={<TrendingUp className="h-5 w-5" />}
+                  label="Taux de conversion"
+                  value="—"
+                  suffix="%"
+                  tooltip="Pourcentage de visiteurs qui achètent (bientôt disponible)"
+                />
+                <KPICard
+                  icon={<Eye className="h-5 w-5" />}
+                  label="Taux de rebond"
+                  value="—"
+                  suffix="%"
+                  tooltip="Visiteurs qui quittent sans interaction (bientôt disponible)"
+                />
+                <KPICard
+                  icon={<Clock className="h-5 w-5" />}
+                  label="Durée moy. session"
+                  value="—"
+                  suffix="s"
+                  tooltip="Temps moyen passé sur votre boutique (bientôt disponible)"
+                />
+                <KPICard
+                  icon={<Globe className="h-5 w-5" />}
+                  label="Nombre de visites"
+                  value="—"
+                  tooltip="Nombre total de visites (bientôt disponible)"
+                />
+              </div>
 
-              <Card className="bg-card/50 border-border/50 mt-6">
-                <CardHeader>
-                  <CardTitle>Créer votre boutique</CardTitle>
-                  <CardDescription>Configurez votre espace vendeur en quelques secondes.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button asChild>
-                    <Link to="/create-boutique">Créer ma boutique</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            </section>
-          )}
-        </div>
-      </main>
+              {/* Charts */}
+              <div className="grid lg:grid-cols-2 gap-6">
+                <SalesChart data={stats.salesData} isLoading={statsLoading} />
+                <TopProductsChart products={stats.topProducts} isLoading={statsLoading} />
+              </div>
+            </div>
+          </main>
+        ) : (
+          <CreateBoutiqueCTA />
+        )}
+      </div>
     </div>
   );
 };
