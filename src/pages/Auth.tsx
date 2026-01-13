@@ -22,40 +22,28 @@ const Auth = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkUserAndRedirect = async (userId: string) => {
-      const { data: seller } = await supabase
-        .from("sellers")
-        .select("id")
-        .eq("user_id", userId)
-        .single();
-
-      if (seller) {
-        navigate("/dashboard");
-      } else {
-        navigate("/create-boutique");
-      }
+    const redirectToDashboard = () => {
+      navigate("/dashboard", { replace: true });
     };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        // Détecter l'événement de récupération de mot de passe
-        if (event === "PASSWORD_RECOVERY") {
-          setShowResetPassword(true);
-          setShowForgotPassword(false);
-          return;
-        }
-
-        if (session?.user && !showResetPassword) {
-          setTimeout(() => {
-            checkUserAndRedirect(session.user.id);
-          }, 0);
-        }
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      // Détecter l'événement de récupération de mot de passe
+      if (event === "PASSWORD_RECOVERY") {
+        setShowResetPassword(true);
+        setShowForgotPassword(false);
+        return;
       }
-    );
+
+      if (session?.user && !showResetPassword) {
+        redirectToDashboard();
+      }
+    });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user && !showResetPassword) {
-        checkUserAndRedirect(session.user.id);
+        redirectToDashboard();
       }
     });
 
@@ -91,6 +79,7 @@ const Auth = () => {
           title: "Connexion réussie",
           description: "Bienvenue sur E-combox !",
         });
+        navigate("/dashboard", { replace: true });
       }
     } catch (error) {
       toast({
