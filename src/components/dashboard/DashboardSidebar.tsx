@@ -50,15 +50,15 @@ const DashboardSidebar = ({ boutiqueName, logoUrl }: DashboardSidebarProps) => {
 
   const navItems = [
     { icon: <LayoutDashboard className="h-5 w-5" />, label: "Tableau de bord", href: "/dashboard" },
-    { icon: <Package className="h-5 w-5" />, label: "Produits", href: "/dashboard/products", disabled: true },
-    { icon: <ShoppingCart className="h-5 w-5" />, label: "Ventes", href: "/dashboard/sales", disabled: true },
-    { icon: <Receipt className="h-5 w-5" />, label: "Transactions", href: "/dashboard/transactions", disabled: true },
-    { icon: <ShoppingBag className="h-5 w-5" />, label: "Paniers", href: "/dashboard/carts", disabled: true },
-    { icon: <Zap className="h-5 w-5" />, label: "Automatisation", href: "/dashboard/automation", disabled: true },
-    { icon: <Users className="h-5 w-5" />, label: "Clients", href: "/dashboard/customers", disabled: true },
-    { icon: <MessageSquare className="h-5 w-5" />, label: "Reviews", href: "/dashboard/reviews", disabled: true },
-    { icon: <BarChart3 className="h-5 w-5" />, label: "Analytiques", href: "/dashboard/analytics", disabled: true },
-    { icon: <Download className="h-5 w-5" />, label: "Exportations", href: "/dashboard/exports", disabled: true },
+    { icon: <Package className="h-5 w-5" />, label: "Produits", href: "/dashboard/products" },
+    { icon: <ShoppingCart className="h-5 w-5" />, label: "Ventes", href: "/dashboard/sales" },
+    { icon: <Receipt className="h-5 w-5" />, label: "Transactions", href: "/dashboard/transactions" },
+    { icon: <ShoppingBag className="h-5 w-5" />, label: "Paniers", href: "/dashboard/carts" },
+    { icon: <Zap className="h-5 w-5" />, label: "Automatisation", href: "/dashboard/automation" },
+    { icon: <Users className="h-5 w-5" />, label: "Clients", href: "/dashboard/customers" },
+    { icon: <MessageSquare className="h-5 w-5" />, label: "Reviews", href: "/dashboard/reviews" },
+    { icon: <BarChart3 className="h-5 w-5" />, label: "Analytiques", href: "/dashboard/analytics" },
+    { icon: <Download className="h-5 w-5" />, label: "Exportations", href: "/dashboard/exports" },
   ];
 
   return (
@@ -80,7 +80,6 @@ const DashboardSidebar = ({ boutiqueName, logoUrl }: DashboardSidebarProps) => {
             label={item.label}
             href={item.href}
             active={currentPath === item.href}
-            disabled={item.disabled}
           />
         ))}
       </nav>
