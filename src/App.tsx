@@ -12,6 +12,7 @@ import Auth from "./pages/Auth";
 import CreateBoutique from "./pages/CreateBoutique";
 import Dashboard from "./pages/Dashboard";
 import DashboardProducts from "./pages/dashboard/DashboardProducts";
+import AddProduct from "./pages/dashboard/AddProduct";
 import DashboardSales from "./pages/dashboard/DashboardSales";
 import DashboardTransactions from "./pages/dashboard/DashboardTransactions";
 import DashboardCarts from "./pages/dashboard/DashboardCarts";
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/create-boutique" element={<CreateBoutique />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/products" element={<DashboardProducts />} />
+          <Route path="/dashboard/products/add" element={<AddProduct />} />
           <Route path="/dashboard/sales" element={<DashboardSales />} />
           <Route path="/dashboard/transactions" element={<DashboardTransactions />} />
           <Route path="/dashboard/carts" element={<DashboardCarts />} />

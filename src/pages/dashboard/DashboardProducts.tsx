@@ -138,7 +138,7 @@ const DashboardProducts = () => {
             <h1 className="text-2xl font-bold">Produits</h1>
             <p className="text-muted-foreground">Gérez vos produits digitaux</p>
           </div>
-          <Button onClick={() => navigate("/create-boutique")}>
+          <Button onClick={() => navigate("/dashboard/products/add")}>
             <Plus className="h-4 w-4 mr-2" />
             Ajouter un produit
           </Button>
@@ -152,7 +152,7 @@ const DashboardProducts = () => {
             {products.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-muted-foreground mb-4">Aucun produit pour le moment</p>
-                <Button onClick={() => navigate("/create-boutique")}>
+                <Button onClick={() => navigate("/dashboard/products/add")}>
                   <Plus className="h-4 w-4 mr-2" />
                   Créer votre premier produit
                 </Button>
