@@ -60,12 +60,12 @@ const useDashboardStats = ({ sellerId, dateRange }: UseDashboardStatsProps) => {
           return;
         }
 
-        // Get orders for seller's products within date range
+        // Get orders for seller's products within date range using seller_orders view
+        // This view masks buyer emails and filters by seller ownership
         const { data: orders } = await supabase
-          .from("orders")
-          .select("id, product_id, amount, buyer_email, created_at")
-          .in("product_id", productIds)
-          .eq("payment_status", "completed")
+          .from("seller_orders")
+          .select("id, product_id, amount, masked_buyer_email, created_at")
+          .eq("seller_id", sellerId)
           .gte("created_at", dateRange.from.toISOString())
           .lte("created_at", dateRange.to.toISOString());
 
@@ -73,8 +73,8 @@ const useDashboardStats = ({ sellerId, dateRange }: UseDashboardStatsProps) => {
 
         // Calculate totals
         const totalSales = validOrders.length;
-        const totalRevenue = validOrders.reduce((sum, order) => sum + order.amount, 0);
-        const uniqueCustomers = new Set(validOrders.map((o) => o.buyer_email)).size;
+        const totalRevenue = validOrders.reduce((sum, order) => sum + (order.amount || 0), 0);
+        const uniqueCustomers = new Set(validOrders.map((o) => o.masked_buyer_email)).size;
 
         // Group sales by date
         const salesByDate: Record<string, { sales: number; revenue: number }> = {};
