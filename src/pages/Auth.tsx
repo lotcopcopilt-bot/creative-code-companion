@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Mail, Lock, User, Loader2, ArrowLeft, Chrome } from "lucide-react";
+import { Mail, Lock, User, Loader2, ArrowLeft } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 const Auth = () => {
@@ -162,34 +162,6 @@ const Auth = () => {
           description: "Vérifiez votre boîte mail pour réinitialiser votre mot de passe.",
         });
         setShowForgotPassword(false);
-      }
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue. Veuillez réessayer.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    setIsLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/dashboard`,
-        },
-      });
-
-      if (error) {
-        toast({
-          title: "Erreur",
-          description: error.message,
-          variant: "destructive",
-        });
       }
     } catch (error) {
       toast({
@@ -438,28 +410,6 @@ const Auth = () => {
                           "Se connecter"
                         )}
                       </Button>
-                      
-                      <div className="relative my-4">
-                        <div className="absolute inset-0 flex items-center">
-                          <span className="w-full border-t" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                          <span className="bg-card px-2 text-muted-foreground">
-                            Ou continuer avec
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full"
-                        onClick={handleGoogleSignIn}
-                        disabled={isLoading}
-                      >
-                        <Chrome className="mr-2 h-4 w-4" />
-                        Google
-                      </Button>
                     </form>
                   </TabsContent>
                   
@@ -520,28 +470,6 @@ const Auth = () => {
                         ) : (
                           "Créer mon compte"
                         )}
-                      </Button>
-                      
-                      <div className="relative my-4">
-                        <div className="absolute inset-0 flex items-center">
-                          <span className="w-full border-t" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                          <span className="bg-card px-2 text-muted-foreground">
-                            Ou continuer avec
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full"
-                        onClick={handleGoogleSignIn}
-                        disabled={isLoading}
-                      >
-                        <Chrome className="mr-2 h-4 w-4" />
-                        Google
                       </Button>
                     </form>
                   </TabsContent>
