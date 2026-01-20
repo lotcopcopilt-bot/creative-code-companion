@@ -145,6 +145,21 @@ serve(async (req) => {
       );
     }
 
+    // Replay attack prevention - check if transaction already processed
+    const { data: existingOrder } = await supabase
+      .from('orders')
+      .select('id')
+      .eq('transaction_id', transactionId)
+      .single();
+
+    if (existingOrder) {
+      console.error("Transaction already processed:", transactionId);
+      return new Response(
+        JSON.stringify({ error: 'Cette transaction a déjà été traitée' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Generate secure download token
     const downloadToken = crypto.randomUUID();
     const downloadExpiresAt = new Date();
@@ -166,6 +181,14 @@ serve(async (req) => {
       .single();
 
     if (orderError) {
+      // Handle unique constraint violation for transaction_id
+      if (orderError.code === '23505') {
+        console.error("Duplicate transaction:", transactionId);
+        return new Response(
+          JSON.stringify({ error: 'Cette transaction a déjà été traitée' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
       console.error("Order creation failed:", orderError);
       return new Response(
         JSON.stringify({ error: 'Erreur lors de la création de la commande' }),
